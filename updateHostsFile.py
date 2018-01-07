@@ -35,6 +35,8 @@ if PY3:
 else:  # Python 2
     from urllib2 import urlopen
     raw_input = raw_input  # noqa
+    reload(sys) # Reload does the trick!
+    sys.setdefaultencoding('UTF8')
 
 # Syntactic sugar for "sudo" command in UNIX / Linux
 if platform.system() == "OpenBSD":
@@ -532,7 +534,7 @@ def update_sources_data(sources_data, **sources_params):
     source_data_filename = sources_params["sourcedatafilename"]
 
     for source in recursive_glob(sources_params["datapath"], source_data_filename):
-        update_file = open(source, "r")
+        update_file = open(source, "r", encoding = "utf-8")
         update_data = json.load(update_file)
         sources_data.append(update_data)
         update_file.close()
@@ -541,7 +543,7 @@ def update_sources_data(sources_data, **sources_params):
         source_dir = path_join_robust(
             sources_params["extensionspath"], source)
         for update_file_path in recursive_glob(source_dir, source_data_filename):
-            update_file = open(update_file_path, "r")
+            update_file = open(update_file_path, "r", encoding = "utf-8")
             update_data = json.load(update_file)
 
             sources_data.append(update_data)
@@ -591,7 +593,7 @@ def update_all_sources(source_data_filename, host_filename):
     all_sources = recursive_glob("*", source_data_filename)
 
     for source in all_sources:
-        update_file = open(source, "r")
+        update_file = open(source, "r", encoding = "utf-8")
         update_data = json.load(update_file)
         update_file.close()
         update_url = update_data["url"]
@@ -636,18 +638,18 @@ def create_initial_file():
         start = "# Start {}\n".format(os.path.basename(os.path.dirname(source)))
         end = "# End {}\n".format(os.path.basename(os.path.dirname(source)))
 
-        with open(source, "r") as curFile:
+        with open(source, "r", encoding = "utf-8") as curFile:
             write_data(merge_file, start + curFile.read() + end)
 
     # spin the sources for extensions to the base file
     for source in settings["extensions"]:
         for filename in recursive_glob(path_join_robust(
                 settings["extensionspath"], source), settings["hostfilename"]):
-            with open(filename, "r") as curFile:
+            with open(filename, "r", encoding = "utf-8") as curFile:
                 write_data(merge_file, curFile.read())
 
     if os.path.isfile(settings["blacklistfile"]):
-        with open(settings["blacklistfile"], "r") as curFile:
+        with open(settings["blacklistfile"], "r", encoding = "utf-8") as curFile:
             write_data(merge_file, curFile.read())
 
     return merge_file
@@ -745,7 +747,7 @@ def remove_dups_and_excl(merge_file, exclusion_regexes, output_file=None):
 
     number_of_rules = settings["numberofrules"]
     if os.path.isfile(settings["whitelistfile"]):
-        with open(settings["whitelistfile"], "r") as ins:
+        with open(settings["whitelistfile"], "r", encoding = "utf-8") as ins:
             for line in ins:
                 line = line.strip(" \t\n\r")
                 if line and not line.startswith("#"):
@@ -941,21 +943,9 @@ def write_opening_header(final_file, **header_params):
 
     if not header_params["skipstatichosts"]:
         write_data(final_file, "127.0.0.1 localhost\n")
-        write_data(final_file, "127.0.0.1 localhost.localdomain\n")
-        write_data(final_file, "127.0.0.1 local\n")
-        write_data(final_file, "255.255.255.255 broadcasthost\n")
-        write_data(final_file, "::1 localhost\n")
         write_data(final_file, "::1 ip6-localhost\n")
-        write_data(final_file, "::1 ip6-loopback\n")
-        write_data(final_file, "fe80::1%lo0 localhost\n")
-        write_data(final_file, "ff00::0 ip6-localnet\n")
-        write_data(final_file, "ff00::0 ip6-mcastprefix\n")
-        write_data(final_file, "ff02::1 ip6-allnodes\n")
-        write_data(final_file, "ff02::2 ip6-allrouters\n")
-        write_data(final_file, "ff02::3 ip6-allhosts\n")
-        write_data(final_file, "0.0.0.0 0.0.0.0\n")
 
-        if platform.system() == "Linux":
+        if platform.system() == "Linux ":
             write_data(final_file, "127.0.1.1 " + socket.gethostname() + "\n")
             write_data(final_file, "127.0.0.53 " + socket.gethostname() + "\n")
 
@@ -964,7 +954,7 @@ def write_opening_header(final_file, **header_params):
     preamble = path_join_robust(BASEDIR_PATH, "myhosts")
 
     if os.path.isfile(preamble):
-        with open(preamble, "r") as f:
+        with open(preamble, "r", encoding = "utf-8") as f:
             write_data(final_file, f.read())
 
     final_file.write(file_contents)
@@ -999,7 +989,7 @@ def update_readme_data(readme_file, **readme_updates):
                        "entries": readme_updates["numberofrules"],
                        "sourcesdata": readme_updates["sourcesdata"]}
 
-    with open(readme_file, "r") as f:
+    with open(readme_file, "r", encoding = "utf-8") as f:
         readme_data = json.load(f)
         readme_data[extensions_key] = generation_data
 

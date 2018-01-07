@@ -1,0 +1,9 @@
+{
+    "name": "CoolDroid",
+    "description": "An open source hosts file for Android.",
+    "homeurl": "https://github.com/cooldroid/",
+    "frequency": "occasionally",
+    "issues": "https://github.com/cooldroid/files/issues",
+    "url": "https://raw.githubusercontent.com/cooldroid/files/master/hosts.txt",
+    "license": "CC BY 3.0"
+}
